@@ -4,18 +4,10 @@
 #include <vector>
 
 typedef uint32_t Number;
+typedef uint8_t Power;
 
-struct Factor {
-	Number prime;
-	Number power;
-
-	Factor(const Number prime, const Number power)
-	: prime(prime)
-	, power(power)
-	{}
-};
-
-typedef std::vector< Factor > VecFactor;
+typedef std::vector< Number > VecFactor;
+typedef std::vector< Power > VecPower;
 
 // return a conservative estimate of the square root of the argument; estimate guaranteed not to be
 // less than the real square root; being a stair-step function, routine tends to overshoot exact roots.
@@ -25,22 +17,24 @@ static Number irootApprox(const Number num)
 	return (1 << (bitcount + 1) / 2) - 1;
 }
 
-static bool isFactored(const VecFactor& factor, const Number numerator)
+static bool isFactored(const VecFactor& factors, const Number numerator)
 {
 	const Number sqrtNumerator = irootApprox(numerator);
 
-	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
-		if (sqrtNumerator < it->prime)
+	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
+		const Number prime_i = *it;
+
+		if (sqrtNumerator < prime_i)
 			return false;
 
-		if (0 == numerator % it->prime)
+		if (0 == numerator % prime_i)
 			return true;
 	}
 
 	return false;
 }
 
-static Number ipow(const Number base, Number power)
+static Number ipow(const Number base, Power power)
 {
 	Number res = 1;
 
@@ -59,15 +53,24 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	VecFactor factor;
-	factor.reserve(1024);
+#if BENCHMARK
+	const size_t reserve = 1 << 13;
+
+#else
+	const size_t reserve = 1 << 10;
+
+#endif
+	VecFactor factors;
+	VecPower powers;
+	factors.reserve(reserve);
+	powers.reserve(reserve);
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
 	Number sqrtNumber = irootApprox(number);
 
 	while (1 < number) {
-		while (isFactored(factor, ++candidateFactor)) {}
+		while (isFactored(factors, ++candidateFactor)) {}
 
 		// if merely looking for factors, as soon as candidateFactor crosses the sqrt(number)
 		// mark we should add current number to factors and break this loop; not doing that
@@ -75,34 +78,42 @@ int main(int argc, char** argv)
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
 		if (candidateFactor > sqrtNumber) {
-			factor.push_back(Factor(number, 1));
+			factors.push_back(number);
+			powers.push_back(1);
 			break;
 		}
 
 #endif
-		Number power = 0;
+		Power power = 0;
 		while (0 == number % candidateFactor) {
-			power += 1;
+			power++;
 			number /= candidateFactor;
 			sqrtNumber = irootApprox(number);
 		}
 
-		factor.push_back(Factor(candidateFactor, power));
+		factors.push_back(candidateFactor);
+		powers.push_back(power);
 	}
 
 #if BENCHMARK
-	if (factor.size())
-		printf("prime: %d, power: %d\n", factor.back().prime, factor.back().power);
+	if (factors.size())
+		printf("prime: %d, power: %d\n", factors.back(), powers.back());
 
 #else
-	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
+	VecFactor::const_iterator itfactor = factors.begin();
+	VecPower::const_iterator itpower = powers.begin();
+
+	for (; itfactor != factors.end(); ++itfactor, ++itpower) {
+
+		const Number factor = *itfactor;
+		const Power power = *itpower;
 
 #if PRINT_ALL == 0
-		if (it->power)
-			printf("prime: %d, power: %d (%d)\n", it->prime, it->power, ipow(it->prime, it->power));
+		if (power)
+			printf("prime: %d, power: %d (%d)\n", factor, power, ipow(factor, power));
 
 #else
-		printf("prime: %d, power: %d\n", it->prime, it->power);
+		printf("prime: %d, power: %d\n", factor, power);
 
 #endif
 	}

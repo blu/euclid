@@ -81,9 +81,14 @@ int main(int argc, char** argv)
 
 #endif
 		Number power = 0;
-		while (0 == number % candidateFactor) {
+		while (true) {
+			// encourage the compiler to utilize atomic div+remainder, where available
+			const Number quotient = number / candidateFactor;
+			const Number remainder = number % candidateFactor;
+			if (remainder)
+				break;
 			power += 1;
-			number /= candidateFactor;
+			number = quotient;
 			sqrtNumber = irootApprox(number);
 		}
 
