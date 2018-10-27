@@ -65,11 +65,18 @@ int main(int argc, char** argv)
 		factor.push_back(Factor(candidateFactor, power));
 	}
 
-	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it)
+#if BENCHMARK
+	if (factor.size())
+		printf("prime: %d, power: %d\n", factor.back().prime, factor.back().power);
+
+#else
+	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
 		if (it->power)
 			printf("prime: %d, power: %d (%d)\n", it->prime, it->power, ipow(it->prime, it->power));
 		else
 			printf("prime: %d, power: %d\n", it->prime, it->power);
+	}
 
+#endif
 	return EXIT_SUCCESS;
 }
