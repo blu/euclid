@@ -19,15 +19,15 @@ static Number irootApprox(const Number num)
 
 static bool isFactored(const VecFactor& factors, const Number numerator)
 {
-	const Number sqrtNumerator = irootApprox(numerator);
-
 	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
 		const Number prime_i = *it;
+		const Number quotient = numerator / prime_i;
+		const Number remainder = numerator % prime_i;
 
-		if (sqrtNumerator < prime_i)
+		if (quotient < prime_i)
 			return false;
 
-		if (0 == numerator % prime_i)
+		if (0 == remainder)
 			return true;
 	}
 

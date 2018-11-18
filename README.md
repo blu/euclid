@@ -8,9 +8,45 @@ Obligatory Random Benchmarking Results
 
 Compute the factors to the 1,000,000th prime, effectively finding all primes up to the 1,000,000th one. Naturally, ISAs featuring integer division perform *much* better than those without.
 
+Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
 
-Cortex-A72 @ 1.3GHz -- aarch64 (integer divison)
-------------------------------------------------
+
+Cortex-A53 @ 1.7GHz -- aarch64-a32 (integer division; core part of bigLITTLE)
+-----------------------------------------------------------------------------
+
+```
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a53 -mtune=cortex-a53 -DBENCHMARK main.cpp
+$ time taskset 0x3 ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m4.189s
+user    0m4.172s
+sys     0m0.012s
+$ echo "scale=4; 4.189 * 1.7" | bc
+7.1213
+$ taskset 0x3 ./mhz
+count=645643 us50=19433 us250=94987 diff=75554 cpu_MHz=1709.090
+```
+
+Cortex-A72 @ 2.1GHz -- aarch64-a32 (integer division; core part of bigLITTLE)
+-----------------------------------------------------------------------------
+
+```
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ time taskset 0xc ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m2.300s
+user    0m2.284s
+sys     0m0.012s
+$ echo "scale=4; 2.300 * 2.1" | bc
+4.8300
+$ taskset 0xc ./mhz
+count=1008816 us50=23979 us250=119882 diff=95903 cpu_MHz=2103.826
+```
+
+Cortex-A72 @ 1.3GHz -- aarch64-a64 (integer divison)
+----------------------------------------------------
 
 ```
 $ clang++-4.0 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 -DBENCHMARK main.cpp
@@ -19,39 +55,39 @@ prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       4353.220880      task-clock (msec)         #    1.000 CPUs utilized
-        5642946243      cycles:u                  #    1.296 GHz
-        5663352558      instructions:u            #    1.00  insns per cycle
+       3697.448000      task-clock (msec)         #    1.000 CPUs utilized
+        4791578640      cycles:u                  #    1.296 GHz
+        4623077694      instructions:u            #    0.96  insns per cycle
 
-       4.354036748 seconds time elapsed
+       3.698267891 seconds time elapsed
 ```
 
 Xeon E3-1270v2 IVB @ 1.6GHz / 3.9GHz -- x86-64 (integer division)
 -----------------------------------------------------------------
 
 ```
-$ clang++-3.7 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
+$ g++-6 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       5226.616569 task-clock (msec)         #    0.999 CPUs utilized
-     8,338,778,205 cycles:u                  #    1.595 GHz
-     6,978,311,461 instructions:u            #    0.84  insns per cycle
+       4055.741930 task-clock (msec)         #    0.999 CPUs utilized
+     6,469,206,597 cycles:u                  #    1.595 GHz
+     5,694,763,911 instructions:u            #    0.88  insns per cycle
 
-       5.231523741 seconds time elapsed
+       4.059659905 seconds time elapsed
 
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       2146.105392 task-clock (msec)         #    0.999 CPUs utilized
-     8,338,813,115 cycles:u                  #    3.886 GHz
-     6,978,310,683 instructions:u            #    0.84  insns per cycle
+       1664.131312 task-clock (msec)         #    0.999 CPUs utilized
+     6,469,103,707 cycles:u                  #    3.887 GHz
+     5,694,762,569 instructions:u            #    0.88  insns per cycle
 
-       2.148160824 seconds time elapsed
+       1.665749981 seconds time elapsed
 ```
 
 Baikal-T1 p5600 @ 1.2GHz -- mips32r5 (integer division)
@@ -64,41 +100,28 @@ prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       7552.067520      task-clock (msec)         #    1.000 CPUs utilized
-        9041600014      cycles:u                  #    1.197 GHz
-        6295603111      instructions:u            #    0.70  insns per cycle
+       6766.543120      task-clock (msec)         #    0.999 CPUs utilized
+        8099572959      cycles:u                  #    1.197 GHz
+        5690154495      instructions:u            #    0.70  insns per cycle
 
-       7.554098610 seconds time elapsed
-
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=p5600 -mtune=p5600 -DBENCHMARK main_alt_alt.cpp
-$ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
-prime: 15485863, power: 1
-
- Performance counter stats for './a.out 15485863':
-
-       7496.085560      task-clock (msec)         #    1.000 CPUs utilized
-        8978995370      cycles:u                  #    1.198 GHz
-        5710222094      instructions:u            #    0.64  insns per cycle
-
-       7.497204873 seconds time elapsed
-
+       6.775047190 seconds time elapsed
 ```
 
 Xeon E5-2687W SNB @ 3.1GHz -- x86-64 (integer division)
 -------------------------------------------------------
 
 ```
-$ clang++-3.9 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
+$ g++-4.8 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       2875.980559      task-clock (msec)         #    0.999 CPUs utilized
-     8,900,021,986      cycles:u                  #    3.095 GHz
-     6,913,241,124      instructions:u            #    0.78  insns per cycle
+       2407.800658      task-clock (msec)         #    0.999 CPUs utilized
+     7,448,537,171      cycles:u                  #    3.094 GHz
+     5,657,934,987      instructions:u            #    0.76  insns per cycle
 
-       2.879061843 seconds time elapsed
+       2.410431996 seconds time elapsed
 ```
 
 Core i7-4770 HSW @ 3.9GHz -- x86-64 (integer division)
@@ -111,9 +134,9 @@ prime: 15485863, power: 1
 
  Performance counter stats for './a.out 15485863':
 
-       2129.954573      task-clock (msec)         #    1.000 CPUs utilized
-     8,246,655,732      cycles:u                  #    3.872 GHz
-     6,948,639,247      instructions:u            #    0.84  insn per cycle
+       1668.399983      task-clock (msec)         #    1.000 CPUs utilized
+        6455080866      cycles:u                  #    3.869 GHz
+        5690572016      instructions:u            #    0.88  insn per cycle
 
-       2.130177734 seconds time elapsed
+       1.668583606 seconds time elapsed
 ```
