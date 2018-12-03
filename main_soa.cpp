@@ -74,10 +74,11 @@ int main(int argc, char** argv)
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
 			if (quotient < candidateFactor) {
+				factors.push_back(candidateFactor);
 				factors.push_back(number);
+				powers.push_back(power);
 				powers.push_back(1);
-				number = 1;
-				break;
+				goto main_loop_done;
 			}
 
 #endif
@@ -91,6 +92,8 @@ int main(int argc, char** argv)
 		factors.push_back(candidateFactor);
 		powers.push_back(power);
 	}
+
+main_loop_done:
 
 #if BENCHMARK
 	if (factors.size())

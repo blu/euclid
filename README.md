@@ -10,9 +10,25 @@ Compute the factors to the 1,000,000th prime, effectively finding all primes up 
 
 Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
 
+| CPU                                             | time, s          | CPU cycles, 10e9 |
+| ----------------------------------------------- | ---------------- | ---------------- |
+| MT8173C Cortex-A53 @1.7GHz, armv8-a32           | 4.181            | 7.108            |
+| MT8173C Cortex-A72 @2.1GHz, armv8-a32           | 2.299            | 4.828            |
+| RK3399 Cortex-A72 @2.0GHz, armv8-a32            | 2.428            | 4.856            |
+| AWS Graviton Cortex-A72 @2.29GHz, armv8-a64     | 2.102            | 4.816            |
+| ARMADA 8040 Cortex-A72 @1.3GHz, armv8-a64       | 3.694            | 4.787            |
+| Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
+| Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
+| Intel Xeon E3-1270v2 @3.9GHz, x86-64            | 1.665            | 6.467            |
+| Intel Core i7-4770 @3.9GHz, x86-64              | 1.665            | 6.453            |
+| Intel Xeon Platinum 8175M @2.5GHz, x86-64       | 1.451            | 3.628            |
+| Baikal-T1 p5600 @1.2GHz, mips32r5               | 6.767            | 8.099            |
 
-Cortex-A53 @ 1.7GHz -- aarch64-a32 (integer division; core part of bigLITTLE)
------------------------------------------------------------------------------
+Benchmark Logs
+==============
+
+MT8173C Cortex-A53 @ 1.7GHz -- armv8-a32 (integer division; core part of bigLITTLE)
+-----------------------------------------------------------------------------------
 
 ```
 $ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a53 -mtune=cortex-a53 -DBENCHMARK main.cpp
@@ -28,8 +44,8 @@ $ taskset 0x3 ./mhz
 count=645643 us50=19433 us250=94987 diff=75554 cpu_MHz=1709.090
 ```
 
-Cortex-A72 @ 2.1GHz -- aarch64-a32 (integer division; core part of bigLITTLE)
------------------------------------------------------------------------------
+MT8173C Cortex-A72 @ 2.1GHz -- armv8-a32 (integer division; core part of bigLITTLE)
+-----------------------------------------------------------------------------------
 
 ```
 $ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 -DBENCHMARK main.cpp
@@ -45,8 +61,42 @@ $ taskset 0xc ./mhz
 count=1008816 us50=23979 us250=119882 diff=95903 cpu_MHz=2103.826
 ```
 
-Cortex-A72 @ 1.3GHz -- aarch64-a64 (integer divison)
-----------------------------------------------------
+RK3399 Cortex-A72 @ 2.0GHz -- armv8-a32 (integer division; core part of bigLITTLE)
+----------------------------------------------------------------------------------
+
+```
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ time taskset 0x30 ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m2.428s
+user    0m2.399s
+sys     0m0.028s
+$ echo "scale=4; 2.428 * 2.0" | bc
+4.8560
+$ taskset 0x30 ./mhz
+count=807053 us50=20146 us250=100541 diff=80395 cpu_MHz=2007.719
+```
+
+AWS Graviton Cortex-A72 @ 2.29GHz -- armv8-a64 (integer division)
+-----------------------------------------------------------------
+
+```
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ time ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m2.102s
+user    0m2.086s
+sys     0m0.016s
+$ echo "scale=4; 2.102 * 2.29" | bc
+4.8135
+$ ./mhz
+count=1008816 us50=22005 us250=110186 diff=88181 cpu_MHz=2288.058
+```
+
+Marvell ARMADA 8040 Cortex-A72 @ 1.3GHz -- armv8-a64 (integer divison)
+----------------------------------------------------------------------
 
 ```
 $ g++-5 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 -DBENCHMARK main.cpp
@@ -60,6 +110,23 @@ prime: 15485863, power: 1
         4658586145      instructions:u            #    0.97  insns per cycle
 
        3.694419028 seconds time elapsed
+```
+
+Xeon Platinum 8175M SKL @ 2.5GHz -- x86-64 (integer division)
+-------------------------------------------------------------
+
+```
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=skylake -mtune=skylake -DBENCHMARK main.cpp
+$ time ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m1.451s
+user    0m1.447s
+sys     0m0.004s
+$ echo "scale=4; 1.451 * 2.5" | bc
+3.6275
+$ ./mhz
+count=1261020 us50=20373 us250=101857 diff=81484 cpu_MHz=3095.135 tsc50=50930432 tsc250=254640864 diff=161 rdtsc_MHz=2500.005
 ```
 
 Xeon E3-1270v2 IVB @ 1.6GHz / 3.9GHz -- x86-64 (integer division)

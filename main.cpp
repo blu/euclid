@@ -17,9 +17,9 @@ struct Factor {
 
 typedef std::vector< Factor > VecFactor;
 
-static bool isFactored(const VecFactor& factor, const Number numerator)
+static bool isFactored(const VecFactor& factors, const Number numerator)
 {
-	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
+	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
 		const Number prime_i = it->prime;
 		const Number quotient = numerator / prime_i;
 		const Number remainder = numerator % prime_i;
@@ -53,14 +53,14 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	VecFactor factor;
-	factor.reserve(1024);
+	VecFactor factors;
+	factors.reserve(1024);
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
 
 	while (1 < number) {
-		while (isFactored(factor, ++candidateFactor)) {}
+		while (isFactored(factors, ++candidateFactor)) {}
 
 		Number power = 0;
 		while (true) {
@@ -73,9 +73,9 @@ int main(int argc, char** argv)
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
 			if (quotient < candidateFactor) {
-				factor.push_back(Factor(number, 1));
-				number = 1;
-				break;
+				factors.push_back(Factor(candidateFactor, power));
+				factors.push_back(Factor(number, 1));
+				goto main_loop_done;
 			}
 
 #endif
@@ -86,15 +86,17 @@ int main(int argc, char** argv)
 			number = quotient;
 		}
 
-		factor.push_back(Factor(candidateFactor, power));
+		factors.push_back(Factor(candidateFactor, power));
 	}
 
+main_loop_done:
+
 #if BENCHMARK
-	if (factor.size())
-		printf("prime: %u, power: %u\n", factor.back().prime, factor.back().power);
+	if (factors.size())
+		printf("prime: %u, power: %u\n", factors.back().prime, factors.back().power);
 
 #else
-	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
+	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
 
 		const Number factor = it->prime;
 		const Number power = it->power;
