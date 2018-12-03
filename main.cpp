@@ -17,14 +17,6 @@ struct Factor {
 
 typedef std::vector< Factor > VecFactor;
 
-// return a conservative estimate of the square root of the argument; estimate guaranteed not to be
-// less than the real square root; being a stair-step function, routine tends to overshoot exact roots.
-static Number irootApprox(const Number num)
-{
-	const size_t bitcount = sizeof(Number) * 8 - __builtin_clz(num);
-	return (1 << (bitcount + 1) / 2) - 1;
-}
-
 static bool isFactored(const VecFactor& factor, const Number numerator)
 {
 	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
@@ -66,27 +58,32 @@ int main(int argc, char** argv)
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
-	Number sqrtNumber = irootApprox(number);
 
 	while (1 < number) {
 		while (isFactored(factor, ++candidateFactor)) {}
 
-		// if merely looking for factors, as soon as candidateFactor crosses the sqrt(number)
-		// mark we should add current number to factors and break this loop; not doing that
-		// gives us a desired side-effect of enumerating all primes below a given prime number
+		Number power = 0;
+		while (true) {
+			const Number quotient = number / candidateFactor;
+			const Number remainder = number % candidateFactor;
+
+			// if merely looking for factors, as soon as candidateFactor crosses the sqrt(number)
+			// mark we should add current number to factors and break the main loop; not doing that
+			// gives us a desired side-effect of enumerating all primes below a given prime number
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
-		if (candidateFactor > sqrtNumber) {
-			factor.push_back(Factor(number, 1));
-			break;
-		}
+			if (quotient < candidateFactor) {
+				factor.push_back(Factor(number, 1));
+				number = 1;
+				break;
+			}
 
 #endif
-		Number power = 0;
-		while (0 == number % candidateFactor) {
-			power += 1;
-			number /= candidateFactor;
-			sqrtNumber = irootApprox(number);
+			if (remainder)
+				break;
+
+			power++;
+			number = quotient;
 		}
 
 		factor.push_back(Factor(candidateFactor, power));
@@ -94,17 +91,20 @@ int main(int argc, char** argv)
 
 #if BENCHMARK
 	if (factor.size())
-		printf("prime: %d, power: %d\n", factor.back().prime, factor.back().power);
+		printf("prime: %u, power: %u\n", factor.back().prime, factor.back().power);
 
 #else
 	for (VecFactor::const_iterator it = factor.begin(); it != factor.end(); ++it) {
 
+		const Number factor = it->prime;
+		const Number power = it->power;
+
 #if PRINT_ALL == 0
-		if (it->power)
-			printf("prime: %d, power: %d (%d)\n", it->prime, it->power, ipow(it->prime, it->power));
+		if (power)
+			printf("prime: %u, power: %u (%u)\n", factor, power, ipow(factor, power));
 
 #else
-		printf("prime: %d, power: %d\n", it->prime, it->power);
+		printf("prime: %u, power: %u\n", factor, power);
 
 #endif
 	}

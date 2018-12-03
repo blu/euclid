@@ -9,14 +9,6 @@ typedef uint8_t Power;
 typedef std::vector< Number > VecFactor;
 typedef std::vector< Power > VecPower;
 
-// return a conservative estimate of the square root of the argument; estimate guaranteed not to be
-// less than the real square root; being a stair-step function, routine tends to overshoot exact roots.
-static Number irootApprox(const Number num)
-{
-	const size_t bitcount = sizeof(Number) * 8 - __builtin_clz(num);
-	return (1 << (bitcount + 1) / 2) - 1;
-}
-
 static bool isFactored(const VecFactor& factors, const Number numerator)
 {
 	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
@@ -67,28 +59,33 @@ int main(int argc, char** argv)
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
-	Number sqrtNumber = irootApprox(number);
 
 	while (1 < number) {
 		while (isFactored(factors, ++candidateFactor)) {}
 
-		// if merely looking for factors, as soon as candidateFactor crosses the sqrt(number)
-		// mark we should add current number to factors and break this loop; not doing that
-		// gives us a desired side-effect of enumerating all primes below a given prime number
+		Power power = 0;
+		while (true) {
+			const Number quotient = number / candidateFactor;
+			const Number remainder = number % candidateFactor;
+
+			// if merely looking for factors, as soon as candidateFactor crosses the sqrt(number)
+			// mark we should add current number to factors and break the main loop; not doing that
+			// gives us a desired side-effect of enumerating all primes below a given prime number
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
-		if (candidateFactor > sqrtNumber) {
-			factors.push_back(number);
-			powers.push_back(1);
-			break;
-		}
+			if (quotient < candidateFactor) {
+				factors.push_back(number);
+				powers.push_back(1);
+				number = 1;
+				break;
+			}
 
 #endif
-		Power power = 0;
-		while (0 == number % candidateFactor) {
+			if (remainder)
+				break;
+
 			power++;
-			number /= candidateFactor;
-			sqrtNumber = irootApprox(number);
+			number = quotient;
 		}
 
 		factors.push_back(candidateFactor);
@@ -97,7 +94,7 @@ int main(int argc, char** argv)
 
 #if BENCHMARK
 	if (factors.size())
-		printf("prime: %d, power: %d\n", factors.back(), powers.back());
+		printf("prime: %u, power: %u\n", factors.back(), powers.back());
 
 #else
 	VecFactor::const_iterator itfactor = factors.begin();
@@ -110,10 +107,10 @@ int main(int argc, char** argv)
 
 #if PRINT_ALL == 0
 		if (power)
-			printf("prime: %d, power: %d (%d)\n", factor, power, ipow(factor, power));
+			printf("prime: %u, power: %u (%u)\n", factor, power, ipow(factor, power));
 
 #else
-		printf("prime: %d, power: %d\n", factor, power);
+		printf("prime: %u, power: %u\n", factor, power);
 
 #endif
 	}
