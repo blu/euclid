@@ -73,8 +73,12 @@ int main(int argc, char** argv)
 
 #if BENCHMARK == 0 && PRINT_ALL == 0
 			if (quotient < candidateFactor) {
-				factors.push_back(Factor(candidateFactor, power));
-				factors.push_back(Factor(number, 1));
+				if (number != candidateFactor) {
+					factors.push_back(Factor(candidateFactor, power));
+					factors.push_back(Factor(number, 1));
+				}
+				else
+					factors.push_back(Factor(candidateFactor, power + 1));
 				goto main_loop_done;
 			}
 
