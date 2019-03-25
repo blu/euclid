@@ -26,16 +26,6 @@ static bool isFactored(const VecFactor& factors, const Number numerator)
 	return false;
 }
 
-static Number ipow(const Number base, Power power)
-{
-	Number res = 1;
-
-	while (power--)
-		res *= base;
-
-	return res;
-}
-
 int main(int argc, char** argv)
 {
 	uint32_t temp;
@@ -45,9 +35,6 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if (1 == temp)
-		return EXIT_SUCCESS;
-
 	const size_t reserve = 1024;
 	VecFactor factors;
 	VecPower powers;
@@ -56,22 +43,19 @@ int main(int argc, char** argv)
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
-	Power power = 0;
 
-	while (true) {
+	while (1 < number) {
 		while (isFactored(factors, ++candidateFactor)) {}
 
-		power = 0;
+		Power power = 0;
 		while (true) {
 			const Number quotient = number / candidateFactor;
 			const Number remainder = number % candidateFactor;
 
 			// when looking for factors, as soon as candidateFactor crosses the sqrt(number) mark
-			// we should add current number to factors and break the main loop; not doing that
-			// produces a side-effect of enumerating all primes below a given prime number
-
-			if (quotient < candidateFactor)
-				goto main_loop_done;
+			// we can add current number to factors and break the main loop; not doing that produces
+			// a side-effect of enumerating all primes below a given prime number -- we use that here
+			// for a benchmark
 
 			if (remainder)
 				break;
@@ -84,35 +68,8 @@ int main(int argc, char** argv)
 		powers.push_back(power);
 	}
 
-main_loop_done:
-
-	if (number != candidateFactor) {
-		factors.push_back(candidateFactor);
-		factors.push_back(number);
-		powers.push_back(power);
-		powers.push_back(1);
-	}
-	else {
-		factors.push_back(candidateFactor);
-		powers.push_back(power + 1);
-	}
-
-	VecFactor::const_iterator itfactor = factors.begin();
-	VecPower::const_iterator itpower = powers.begin();
-
-	for (; itfactor != factors.end(); ++itfactor, ++itpower) {
-		const Number factor = *itfactor;
-		const Power power = *itpower;
-
-#if PRINT_ALL == 0
-		if (power)
-			printf("prime: %u, power: %u (%u)\n", factor, power, ipow(factor, power));
-
-#else
-		printf("prime: %u, power: %u\n", factor, power);
-
-#endif
-	}
+	if (factors.size())
+		printf("prime: %u, power: %u\n", factors.back(), powers.back());
 
 	return EXIT_SUCCESS;
 }

@@ -31,7 +31,7 @@ MT8173C Cortex-A53 @ 1.7GHz -- armv8-a32 (integer division; core part of bigLITT
 -----------------------------------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a53 -mtune=cortex-a53 -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a53 -mtune=cortex-a53 main_bench.cpp
 $ time taskset 0x3 ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -48,7 +48,7 @@ MT8173C Cortex-A72 @ 2.1GHz -- armv8-a32 (integer division; core part of bigLITT
 -----------------------------------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 main_bench.cpp
 $ time taskset 0xc ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -65,7 +65,7 @@ RK3399 Cortex-A72 @ 2.0GHz -- armv8-a32 (integer division; core part of bigLITTL
 ----------------------------------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a57 -mtune=cortex-a57 main_bench.cpp
 $ time taskset 0x30 ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -82,7 +82,7 @@ AWS Graviton Cortex-A72 @ 2.29GHz -- armv8-a64 (integer division)
 -----------------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 main_bench.cpp
 $ time ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -99,7 +99,7 @@ Marvell ARMADA 8040 Cortex-A72 @ 1.3GHz -- armv8-a64 (integer divison)
 ----------------------------------------------------------------------
 
 ```
-$ g++-5 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 -DBENCHMARK main.cpp
+$ g++-5 -Ofast -fno-rtti -fno-exceptions -mtune=cortex-a57 main_bench.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -116,7 +116,7 @@ Xeon Platinum 8175M SKL @ 2.5GHz -- x86-64 (integer division)
 -------------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=skylake -mtune=skylake -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=skylake -mtune=skylake main_bench.cpp
 $ time ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -133,7 +133,7 @@ Xeon E3-1270v2 IVB @ 1.6GHz / 3.9GHz -- x86-64 (integer division)
 -----------------------------------------------------------------
 
 ```
-$ g++-6 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
+$ g++-6 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native main_bench.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -161,7 +161,7 @@ Baikal-T1 p5600 @ 1.2GHz -- mips32r5 (integer division)
 -------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=p5600 -mtune=p5600 -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=p5600 -mtune=p5600 main_bench.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -178,7 +178,7 @@ Xeon E5-2687W SNB @ 3.1GHz -- x86-64 (integer division)
 -------------------------------------------------------
 
 ```
-$ g++-4.8 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native -DBENCHMARK main.cpp
+$ g++-4.8 -Ofast -fno-rtti -fno-exceptions -march=native -mtune=native main_bench.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
@@ -195,7 +195,7 @@ Core i7-4770 HSW @ 3.9GHz -- x86-64 (integer division)
 ------------------------------------------------------
 
 ```
-$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=haswell -mtune=haswell -DBENCHMARK main.cpp
+$ g++-7.3 -Ofast -fno-rtti -fno-exceptions -march=haswell -mtune=haswell main_bench.cpp
 $ perf stat -e task-clock,cycles:u,instructions:u -- ./a.out 15485863
 prime: 15485863, power: 1
 
