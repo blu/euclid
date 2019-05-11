@@ -17,6 +17,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | RK3399 Cortex-A72 @2.0GHz, armv8-a32            | 2.428            | 4.856            |
 | AWS Graviton Cortex-A72 @2.29GHz, armv8-a64     | 2.102            | 4.816            |
 | ARMADA 8040 Cortex-A72 @1.3GHz, armv8-a64       | 3.694            | 4.787            |
+| Amlogic S922X Cortex-A73 @1.8GHz, armv8-a64     | 2.498            | 4.496            |
 | Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
 | Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
 | Intel Xeon E3-1270v2 @3.9GHz, x86-64            | 1.665            | 6.467            |
@@ -206,4 +207,21 @@ prime: 15485863, power: 1
         5690572110      instructions:u            #    0.88  insn per cycle
 
        1.665336581 seconds time elapsed
+```
+
+Amlogic S922X Cortex-A73 @ 1.8GHz -- armv8-a64 (integer division)
+-----------------------------------------------------------------
+
+```
+$ g++-7.4 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a73 -mtune=cortex-a73 main_bench.cpp
+$ time taskset 0x3c ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m2.498s
+user    0m2.492s
+sys     0m0.008s
+$ echo "scale=4; 2.498 * 1.8" | bc
+4.4964
+$ taskset 0x3c ./mhz
+count=807053 us50=22447 us250=112248 diff=89801 cpu_MHz=1797.425
 ```
