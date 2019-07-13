@@ -10,7 +10,7 @@ Compute the factors to the 1,000,000th prime, effectively finding all primes up 
 
 Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
 
-| CPU                                             | time, s          | CPU cycles, 10e9 |
+| CPU                                             | time, s          | CPU cycles, 1e9  |
 | ----------------------------------------------- | ---------------- | ---------------- |
 | MT8173C Cortex-A53 @1.7GHz, armv8-a32           | 4.181            | 7.108            |
 | MT8173C Cortex-A72 @2.1GHz, armv8-a32           | 2.299            | 4.828            |
