@@ -18,6 +18,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | AWS Graviton Cortex-A72 @2.29GHz, armv8-a64     | 2.102            | 4.816            |
 | ARMADA 8040 Cortex-A72 @1.3GHz, armv8-a64       | 3.694            | 4.787            |
 | Amlogic S922X Cortex-A73 @1.8GHz, armv8-a64     | 2.498            | 4.496            |
+| Snapdragon 835 Cortex-A73 @2.55GHz, armv8-a64   | 1.817            | 4.633            |
 | Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
 | Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
 | Intel Xeon E3-1270v2 @3.9GHz, x86-64            | 1.665            | 6.467            |
@@ -224,4 +225,21 @@ $ echo "scale=4; 2.498 * 1.8" | bc
 4.4964
 $ taskset 0x3c ./mhz
 count=807053 us50=22447 us250=112248 diff=89801 cpu_MHz=1797.425
+```
+
+Snapdragon 835 Cortex-A73 @ 2.55GHz -- armv8-a64 (integer division)
+-------------------------------------------------------------------
+
+```
+$ g++-7.4 -Ofast -fno-exceptions -fno-rtti main_bench.cpp -mcpu=cortex-a73 -mtune=cortex-a73
+$ time taskset 0xf0 ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m1.817s
+user    0m1.766s
+sys     0m0.047s
+$ echo "scale=4; 1.817 * 2.55" | bc
+4.6333
+$ taskset 0xf0 ./mhz
+count=1261020 us50=24718 us250=123581 diff=98863 cpu_MHz=2551.045
 ```
