@@ -19,6 +19,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | ARMADA 8040 Cortex-A72 @1.3GHz, armv8-a64       | 3.694            | 4.787            |
 | Amlogic S922X Cortex-A73 @1.8GHz, armv8-a64     | 2.498            | 4.496            |
 | Snapdragon 835 Cortex-A73 @2.55GHz, armv8-a64   | 1.817            | 4.633            |
+| Snapdragon SQ1 Cortex-A76 @3.0GHz, armv8-a64    | 1.625            | 4.875            |
 | Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
 | Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
 | Intel Xeon E3-1270v2 @3.9GHz, x86-64            | 1.665            | 6.467            |
@@ -242,4 +243,18 @@ $ echo "scale=4; 1.817 * 2.55" | bc
 4.6333
 $ taskset 0xf0 ./mhz
 count=1261020 us50=24718 us250=123581 diff=98863 cpu_MHz=2551.045
+```
+
+Snapdragon SQ1 Cortex-A76 @ 3.0GHz -- armv8-a64 (integer division)
+------------------------------------------------------------------
+
+```
+$ g++-8.4 -Ofast -fno-exceptions -fno-rtti -fstrict-aliasing -mcpu=cortex-a76 -mtune=cortex-a76 main_bench.cpp
+$ time ./a.out 15485863
+prime: 15485863, power: 1
+real    0m1.625s
+user    0m1.609s
+sys     0m0.000s
+$ echo "scale=4; 1.625 * 3" | bc
+4.875
 ```
