@@ -44,6 +44,17 @@ static Number ipow(const Number base, Number power)
 	return res;
 }
 
+Number count_trailing_zeroes(const Number x)
+{
+	if (sizeof(unsigned int) >= sizeof(x))
+		return __builtin_ctz(x);
+
+	if (sizeof(unsigned long) == sizeof(x))
+		return __builtin_ctzl(x);
+
+	return __builtin_ctzll(x);
+}
+
 int main(int argc, char** argv)
 {
 	uint32_t temp;
@@ -64,25 +75,13 @@ int main(int argc, char** argv)
 	Number power = 0;
 
 	// factorization by 2 is handled in advance
-	while (true) {
-		const Number quotient = number / 2;
-		const Number remainder = number % 2;
+	power = count_trailing_zeroes(number);
+	number >>= power;
 
-		if (quotient < 2)
-			break;
+	factors.push_back(Factor(2, power));
 
-		if (remainder)
-			break;
-
-		power++;
-		number = quotient;
-	}
-
-	if (number == 2) {
-		factors.push_back(Factor(2, power + 1));
+	if (number == 1)
 		goto printout;
-	} else
-		factors.push_back(Factor(2, power));
 
 	while (true) {
 		while (isFactored(factors, candidateFactor += 2)) {}
