@@ -49,7 +49,7 @@ Number count_trailing_zeroes(const Number x)
 	if (sizeof(unsigned int) >= sizeof(x))
 		return __builtin_ctz(x);
 
-	if (sizeof(unsigned long) == sizeof(x))
+	if (sizeof(unsigned long) >= sizeof(x))
 		return __builtin_ctzl(x);
 
 	return __builtin_ctzll(x);
