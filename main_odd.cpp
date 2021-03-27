@@ -3,7 +3,20 @@
 #include <stdlib.h>
 #include <vector>
 
+#if _MSC_VER || __APPLE__ || __SIZEOF_LONG__ == 4
+#define FMT64 "%llu"
+#else
+#define FMT64 "%lu"
+#endif
+#define FMT32 "%u"
+
+#if NUM_64BIT
+typedef uint64_t Number;
+#define NUM_FMT FMT64
+#else
 typedef uint32_t Number;
+#define NUM_FMT FMT32
+#endif
 
 struct Factor {
 	Number prime;
@@ -57,9 +70,9 @@ Number count_trailing_zeroes(const Number x)
 
 int main(int argc, char** argv)
 {
-	uint32_t temp;
+	uint64_t temp;
 
-	if (2 != argc || 1 != sscanf(argv[1], "%u", &temp)) {
+	if (2 != argc || 1 != sscanf(argv[1], FMT64, &temp)) {
 		fprintf(stderr, "usage: %s positive-integer\n", argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -125,10 +138,10 @@ printout:
 
 #if PRINT_ALL == 0
 		if (power)
-			printf("prime: %u, power: %u (%u)\n", factor, power, ipow(factor, power));
+			printf("prime: " NUM_FMT ", power: " NUM_FMT " (" NUM_FMT ")\n", factor, power, ipow(factor, power));
 
 #else
-		printf("prime: %u, power: %u\n", factor, power);
+		printf("prime: " NUM_FMT ", power: " NUM_FMT "\n", factor, power);
 
 #endif
 	}
