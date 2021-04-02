@@ -20,7 +20,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | Amlogic S922X Cortex-A73 @1.8GHz, armv8-a64     | 2.498            | 4.496            |
 | Snapdragon 835 Cortex-A73 @2.55GHz, armv8-a64   | 1.817            | 4.633            |
 | Snapdragon SQ1 Cortex-A76 @3.0GHz, armv8-a64    | 1.613            | 4.839            |
-| Apple M1 Firestorm @3.2GHz, armv8.4-a64         | 0.409            | 1.309            |
+| Apple M1 Firestorm @3.2GHz, armv8.4-a64         | 0.388            | 1.242            |
 | Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
 | Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
 | Intel Xeon E3-1270v2 @3.9GHz, x86-64            | 1.665            | 6.467            |
@@ -28,8 +28,8 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | Intel Xeon Platinum 8175M @2.5GHz, x86-64       | 1.451            | 3.628            |
 | Baikal-T1 p5600 @1.2GHz, mips32r5               | 6.767            | 8.099            |
 
-Benchmark Logs
-==============
+Benchmark Logs (best results from a possible multi-run)
+=======================================================
 
 MT8173C Cortex-A53 @ 1.7GHz -- armv8-a32 (integer division; core part of bigLITTLE)
 -----------------------------------------------------------------------------------
@@ -272,4 +272,11 @@ prime: 15485863, power: 1
 ./a.out 15485863  0.40s user 0.00s system 99% cpu 0.409 total
 $ echo "scale=4; 0.409 * 3.2" | bc
 1.3088
+
+$ xcrun g++-mp-devel -Ofast -fno-rtti -fno-exceptions -fstrict-aliasing -march=armv8.4-a -mtune=native main_bench.cpp
+$ time ./a.out 15485863
+prime: 15485863, power: 1
+./a.out 15485863  0.39s user 0.00s system 99% cpu 0.388 total
+$ echo "scale=4; 0.388 * 3.2" | bc
+1.2416
 ```
