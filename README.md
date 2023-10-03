@@ -20,6 +20,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | Amlogic S922X Cortex-A73 @1.8GHz, armv8-a64     | 2.498            | 4.496            |
 | Snapdragon 835 Cortex-A73 @2.55GHz, armv8-a64   | 1.817            | 4.633            |
 | Snapdragon SQ1 Cortex-A76 @3.0GHz, armv8-a64    | 1.613            | 4.839            |
+| NVIDIA Orin Cortex-A78AE @2.2GHz, armv8.2-a64   | 2.160            | 4.752            |
 | Apple M1 Firestorm @3.2GHz, armv8.4-a64         | 0.388            | 1.242            |
 | Intel Xeon E5-2687W @3.1GHz, x86-64             | 2.409            | 7.445            |
 | Intel Xeon E3-1270v2 @1.6GHz, x86-64            | 4.059            | 6.468            |
@@ -279,4 +280,18 @@ prime: 15485863, power: 1
 ./a.out 15485863  0.39s user 0.00s system 99% cpu 0.388 total
 $ echo "scale=4; 0.388 * 3.2" | bc
 1.2416
+```
+NVIDIA Orin Cortex-A78AE @ 2.2GHz -- armv8.2-a64 (integer division)
+------------------------------------------------------------------
+
+```
+$ g++-8 -Ofast -fno-rtti -fno-exceptions -mcpu=cortex-a76 -mtune=cortex-a76 main_bench.cpp
+$ time ./a.out 15485863
+prime: 15485863, power: 1
+
+real    0m2,160s
+user    0m2,154s
+sys     0m0,005s
+$ echo "scale=4; 2.160 * 2.2" | bc
+4.7520
 ```
