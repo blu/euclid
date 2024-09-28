@@ -30,24 +30,6 @@ struct Factor {
 
 typedef std::vector< Factor > VecFactor;
 
-static bool isFactored(const VecFactor& factors, const Number numerator)
-{
-	// start from the 2nd factor as 1st factor is 2, which we handle explicitly
-	for (VecFactor::const_iterator it = factors.begin() + 1; it != factors.end(); ++it) {
-		const Number prime_i = it->prime;
-		const Number quotient = numerator / prime_i;
-		const Number remainder = numerator % prime_i;
-
-		if (quotient < prime_i)
-			return false;
-
-		if (0 == remainder)
-			return true;
-	}
-
-	return false;
-}
-
 static Number ipow(const Number base, Number power)
 {
 	Number res = 1;
@@ -92,13 +74,14 @@ int main(int argc, char** argv)
 	power = count_trailing_zeroes(number);
 	number >>= power;
 
-	factors.push_back(Factor(2, power));
+	if (power)
+		factors.push_back(Factor(2, power));
 
 	if (number == 1)
 		goto printout;
 
 	while (true) {
-		while (isFactored(factors, candidateFactor += 2)) {}
+		candidateFactor += 2;
 
 		power = 0;
 		while (true) {
@@ -106,8 +89,7 @@ int main(int argc, char** argv)
 			const Number remainder = number % candidateFactor;
 
 			// when looking for factors, as soon as candidateFactor crosses the sqrt(number) mark
-			// we should add current number to factors and break the main loop; not doing that
-			// produces a side-effect of enumerating all primes below a given prime number
+			// we should add current number to factors and break the main loop
 
 			if (quotient < candidateFactor)
 				goto main_loop_done;
@@ -119,13 +101,15 @@ int main(int argc, char** argv)
 			number = quotient;
 		}
 
-		factors.push_back(Factor(candidateFactor, power));
+		if (power)
+			factors.push_back(Factor(candidateFactor, power));
 	}
 
 main_loop_done:
 
 	if (number != candidateFactor) {
-		factors.push_back(Factor(candidateFactor, power));
+		if (power)
+			factors.push_back(Factor(candidateFactor, power));
 		factors.push_back(Factor(number, 1));
 	}
 	else
@@ -137,14 +121,7 @@ printout:
 		const Number factor = it->prime;
 		const Number power = it->power;
 
-#if PRINT_ALL == 0
-		if (power)
-			printf("prime: " NUM_FMT ", power: " NUM_FMT " (" NUM_FMT ")\n", factor, power, ipow(factor, power));
-
-#else
-		printf("prime: " NUM_FMT ", power: " NUM_FMT "\n", factor, power);
-
-#endif
+		printf("prime: " NUM_FMT ", power: " NUM_FMT " (" NUM_FMT ")\n", factor, power, ipow(factor, power));
 	}
 
 	return EXIT_SUCCESS;
