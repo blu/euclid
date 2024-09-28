@@ -32,7 +32,8 @@ typedef std::vector< Factor > VecFactor;
 
 static bool isFactored(const VecFactor& factors, const Number numerator)
 {
-	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
+	// start from the 2nd factor as 1st factor is 2, which we handle explicitly
+	for (VecFactor::const_iterator it = factors.begin() + 1; it != factors.end(); ++it) {
 		const Number prime_i = it->prime;
 		const Number quotient = numerator / prime_i;
 		const Number remainder = numerator % prime_i;
