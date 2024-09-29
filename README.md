@@ -31,14 +31,13 @@ BCM2712 Cortex-A76 @ 2.4GHz, armv8-a64, g++-12.2.0
 -----------------------------------------------------------------------------------
 
 ```bash
-$ perf stat -e task-clock:u,cpu-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_all64_gcc 12345678901234567
+$ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_all64_gcc 12345678901234567
 prime: 7, power: 1 (7)
 prime: 1763668414462081, power: 1 (1763668414462081)
 
  Performance counter stats for './euclid_all64_gcc 12345678901234567':
 
             214.93 msec task-clock:u                     #    0.998 CPUs utilized             
-            214.93 msec cpu-clock:u                      #    0.998 CPUs utilized             
        514,345,644      cycles:u                         #    2.393 GHz                       
        295,317,919      instructions:u                   #    0.57  insn per cycle            
        126,272,544      branches:u                       #  587.493 M/sec                     
@@ -51,14 +50,13 @@ prime: 1763668414462081, power: 1 (1763668414462081)
 ```
 
 ```bash
-$ perf stat -e task-clock:u,cpu-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_odd64_gcc 12345678901234567
+$ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_odd64_gcc 12345678901234567
 prime: 7, power: 1 (7)
 prime: 1763668414462081, power: 1 (1763668414462081)
 
  Performance counter stats for './euclid_odd64_gcc 12345678901234567':
 
             107.96 msec task-clock:u                     #    0.998 CPUs utilized             
-            107.96 msec cpu-clock:u                      #    0.998 CPUs utilized             
        257,855,069      cycles:u                         #    2.388 GHz                       
        148,331,724      instructions:u                   #    0.58  insn per cycle            
         63,278,464      branches:u                       #  586.111 M/sec                     
