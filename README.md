@@ -68,6 +68,24 @@ prime: 1763668414462081, power: 1 (1763668414462081)
        0.000000000 seconds sys
 ```
 
+```
+$ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_odd64 18446744073709551557
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+
+ Performance counter stats for './euclid_odd64 18446744073709551557':
+
+         12,613.18 msec task-clock:u                     #    1.000 CPUs utilized             
+    30,208,768,999      cycles:u                         #    2.395 GHz                       
+    15,032,488,410      instructions:u                   #    0.50  insn per cycle            
+     6,442,473,464      branches:u                       #  510.773 M/sec                     
+             1,984      branch-misses:u                  #    0.00% of all branches           
+
+      12.614879760 seconds time elapsed
+
+      12.614909000 seconds user
+       0.000000000 seconds sys
+```
+
 Tegra T234 Cortex-A78 @ 2.2GHz, armv8-a64, g++-10.5.0
 -----------------------------------------------------------------------------------
 

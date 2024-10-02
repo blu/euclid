@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <vector>
+#include "fact.hpp"
 
 #if _MSC_VER || __APPLE__ || __SIZEOF_LONG__ == 4
 #define FMT64 "%llu"
@@ -18,17 +18,8 @@ typedef uint32_t Number;
 #define NUM_FMT FMT32
 #endif
 
-struct Factor {
-	Number prime;
-	Number power;
-
-	Factor(const Number prime, const Number power)
-	: prime(prime)
-	, power(power)
-	{}
-};
-
-typedef std::vector< Factor > VecFactor;
+// use scalar bitness as a conservative estimate of the limit of unique prime factors
+Factor< Number > buf[sizeof(Number) * 8];
 
 static Number ipow(const Number base, Number power)
 {
@@ -63,8 +54,7 @@ int main(int argc, char** argv)
 	if (1 == temp)
 		return EXIT_SUCCESS;
 
-	VecFactor factors;
-	factors.reserve(1024);
+	Storage factors(buf);
 
 	Number number = Number(temp);
 	Number candidateFactor = 1;
@@ -74,16 +64,15 @@ int main(int argc, char** argv)
 	power = count_trailing_zeroes(number);
 	number >>= power;
 
-	if (power)
-		factors.push_back(Factor(2, power));
+	factors.push_back_nonzero(2, power);
 
 	if (number == 1)
 		goto printout;
 
 	while (true) {
 		candidateFactor += 2;
-
 		power = 0;
+
 		while (true) {
 			const Number quotient = number / candidateFactor;
 			const Number remainder = number % candidateFactor;
@@ -101,23 +90,21 @@ int main(int argc, char** argv)
 			number = quotient;
 		}
 
-		if (power)
-			factors.push_back(Factor(candidateFactor, power));
+		factors.push_back_nonzero(candidateFactor, power);
 	}
 
 main_loop_done:
 
 	if (number != candidateFactor) {
-		if (power)
-			factors.push_back(Factor(candidateFactor, power));
-		factors.push_back(Factor(number, 1));
+		factors.push_back_nonzero(candidateFactor, power);
+		factors.push_back(number, 1);
 	}
 	else
-		factors.push_back(Factor(candidateFactor, power + 1));
+		factors.push_back(candidateFactor, power + 1);
 
 printout:
 
-	for (VecFactor::const_iterator it = factors.begin(); it != factors.end(); ++it) {
+	for (const Factor< Number > *it = factors.begin(); it != factors.end(); ++it) {
 		const Number factor = it->prime;
 		const Number power = it->power;
 
