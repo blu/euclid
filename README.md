@@ -11,8 +11,8 @@ Compute the factors to a pre-selected 17-digit number (64bit): 12345678901234567
 Compiler gnu-style CLI:
 
 ```bash
-$ g++ -Ofast -fno-rtti -fno-exceptions -mcpu=<isa> -mtune=<isa> main.cpp -o euclid_all64 -DNUM_64BIT=1
-$ g++ -Ofast -fno-rtti -fno-exceptions -mcpu=<isa> -mtune=<isa> main_odd.cpp -o euclid_odd64 -DNUM_64BIT=1
+$ g++ -Ofast -fno-rtti -fno-exceptions -fstrict-aliasing -mcpu=<uarch> -mtune=<uarch> main.cpp -o euclid_all64 -DNUM_64BIT=1
+$ g++ -Ofast -fno-rtti -fno-exceptions -fstrict-aliasing -mcpu=<uarch> -mtune=<uarch> main_odd.cpp -o euclid_odd64 -DNUM_64BIT=1
 ```
 
 Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
