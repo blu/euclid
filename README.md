@@ -85,7 +85,7 @@ Profiling on AS is not trivial. While Linux `perf` is the state-of-the-art in PM
 
 Anyhow, we can use the readings from `perf`-equipped platforms to draw some conclusions about M1 P-core IPC. As we use g++ to compile for M1, the codegen yields the same 7-op loop, save for trivialities like `cmp A, B; b.hi` <-> `cmp B, A; b.lo`.
 
-What we know is that the 7-op, strictly-compute loop universally takes 15,033 Mops to conclude, given this particular argument. We also know (indirectly, time * clock) that the duration of the loop is 4288 Mcycles on M1 P-core. That translates to an IPC of 3.5058 -- virtually the same as Oryon.
+What we know is that the 7-op, strictly-compute loop universally takes 15,033 Mops to conclude, given this particular argument. We also know (indirectly, time * clock) that the duration of the loop is 4288 Mcycles on M1 P-core. That translates to an IPC of 3.50 -- the same as Oryon.
 
 Final Words
 -----------
