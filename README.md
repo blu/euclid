@@ -19,6 +19,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 
 | CPU                                             | time, s          | CPU cycles, 1e6  |
 | ----------------------------------------------- | ---------------- | ---------------- |
+| Intel Xeon W-2155 3.3GHz (odd)                  | 11.360           | 37488            |
 | BCM2712 Cortex-A76 2.4GHz (odd)                 | 12.615           | 30209            |
 | T234 Cortex-A78AE 2.2GHz (odd)                  | 13.755           | 30208            |
 | Snapdragon X1E-78-100 3.4GHz (odd)              | 1.289            | 4296             |
@@ -320,4 +321,60 @@ count=1576275 us50=24734 us250=123458 diff=98724 cpu_MHz=3193.296
 count=1576275 us50=24793 us250=123322 diff=98529 cpu_MHz=3199.616
 count=1576275 us50=24755 us250=123651 diff=98896 cpu_MHz=3187.743
 count=1576275 us50=24802 us250=123244 diff=98442 cpu_MHz=3202.444
+```
+
+Intel Xeon W-2155 @ 3.3GHz, amd64, g++-11.3.0
+-----------------------------------------------------------------------------------
+
+```
+$ for i in {0..7} ; do /usr/bin/time -p ./euclid_odd64 18446744073709551557 ; done
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.49
+user 11.48
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.36
+user 11.36
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.36
+user 11.36
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.43
+user 11.43
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.36
+user 11.36
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.37
+user 11.36
+sys 0.01
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.43
+user 11.43
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 11.38
+user 11.37
+sys 0.00
+$ ./mhz 16
+count=1970343 us50=23266 us250=116031 diff=92765 cpu_MHz=4248.031 tsc50=77056222 tsc250=384292264 diff=155 rdtsc_MHz=3311.982
+count=1970343 us50=23455 us250=116270 diff=92815 cpu_MHz=4245.743 tsc50=77684206 tsc250=385085138 diff=156 rdtsc_MHz=3311.975
+count=1970343 us50=23367 us250=116787 diff=93420 cpu_MHz=4218.247 tsc50=77391398 tsc250=386798414 diff=157 rdtsc_MHz=3312.000
+count=1970343 us50=23556 us250=116905 diff=93349 cpu_MHz=4221.455 tsc50=78017620 tsc250=387188044 diff=156 rdtsc_MHz=3311.984
+count=1970343 us50=23526 us250=116421 diff=92895 cpu_MHz=4242.086 tsc50=77917002 tsc250=385586738 diff=156 rdtsc_MHz=3312.016
+count=1970343 us50=23489 us250=115576 diff=92087 cpu_MHz=4279.308 tsc50=77798032 tsc250=382784318 diff=154 rdtsc_MHz=3311.936
+count=1970343 us50=23600 us250=117372 diff=93772 cpu_MHz=4202.412 tsc50=78162850 tsc250=388736542 diff=157 rdtsc_MHz=3312.009
+count=1970343 us50=23491 us250=116735 diff=93244 cpu_MHz=4226.209 tsc50=77801392 tsc250=386624454 diff=156 rdtsc_MHz=3311.989
+count=1970343 us50=23303 us250=118190 diff=94887 cpu_MHz=4153.030 tsc50=77181490 tsc250=391439946 diff=159 rdtsc_MHz=3311.923
+count=1970343 us50=23429 us250=118190 diff=94761 cpu_MHz=4158.553 tsc50=77598968 tsc250=391447530 diff=159 rdtsc_MHz=3312.001
+count=1970343 us50=23307 us250=117784 diff=94477 cpu_MHz=4171.053 tsc50=77192674 tsc250=390100262 diff=158 rdtsc_MHz=3311.998
+count=1970343 us50=22896 us250=117347 diff=94451 cpu_MHz=4172.201 tsc50=75833512 tsc250=388649838 diff=158 rdtsc_MHz=3311.943
+count=1970343 us50=23270 us250=116750 diff=93480 cpu_MHz=4215.539 tsc50=77070850 tsc250=386676994 diff=157 rdtsc_MHz=3312.004
+count=1970343 us50=23226 us250=116114 diff=92888 cpu_MHz=4242.406 tsc50=76923704 tsc250=384568126 diff=156 rdtsc_MHz=3311.993
+count=1970343 us50=23175 us250=117122 diff=93947 cpu_MHz=4194.584 tsc50=76757158 tsc250=387904922 diff=157 rdtsc_MHz=3311.950
+count=1970343 us50=23720 us250=117514 diff=93794 cpu_MHz=4201.427 tsc50=78560030 tsc250=389203850 diff=157 rdtsc_MHz=3311.979
 ```
