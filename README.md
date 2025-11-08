@@ -24,6 +24,7 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | T234 Cortex-A78AE 2.2GHz (odd)                  | 13.755           | 30208            |
 | Snapdragon X1E-78-100 3.4GHz (odd)              | 1.289            | 4296             |
 | Apple M1 P-core 3.2GHz (odd)                    | 1.340            | 4288             |
+| Apple M2 P-core 3.49GHz (odd)                   | 1.230            | 4293             |
 
 
 There is a glaring difference in the results. What's going on here? To fully answer that question we need to start from afar.
@@ -321,6 +322,62 @@ count=1576275 us50=24734 us250=123458 diff=98724 cpu_MHz=3193.296
 count=1576275 us50=24793 us250=123322 diff=98529 cpu_MHz=3199.616
 count=1576275 us50=24755 us250=123651 diff=98896 cpu_MHz=3187.743
 count=1576275 us50=24802 us250=123244 diff=98442 cpu_MHz=3202.444
+```
+
+Apple M2 @ 3.49GHz, armv8-a64, g++-13.0.0
+-----------------------------------------------------------------------------------
+
+```bash
+% for i in {0..7} ; do /usr/bin/time -p ./euclid_odd64 18446744073709551557 ; done
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.26
+user 1.25
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+prime: 18446744073709551557, power: 1 (18446744073709551557)
+real 1.23
+user 1.22
+sys 0.00
+% ./mhz 16
+count=1576275 us50=22521 us250=112610 diff=90089 cpu_MHz=3499.373
+count=1576275 us50=22554 us250=113019 diff=90465 cpu_MHz=3484.828
+count=1576275 us50=22546 us250=113687 diff=91141 cpu_MHz=3458.981
+count=1576275 us50=22642 us250=113530 diff=90888 cpu_MHz=3468.610
+count=1576275 us50=22686 us250=113255 diff=90569 cpu_MHz=3480.827
+count=1576275 us50=22638 us250=113184 diff=90546 cpu_MHz=3481.711
+count=1576275 us50=22712 us250=113216 diff=90504 cpu_MHz=3483.327
+count=1576275 us50=22678 us250=113022 diff=90344 cpu_MHz=3489.496
+count=1576275 us50=22613 us250=113209 diff=90596 cpu_MHz=3479.789
+count=1576275 us50=22629 us250=113117 diff=90488 cpu_MHz=3483.943
+count=1576275 us50=22555 us250=113243 diff=90688 cpu_MHz=3476.259
+count=1576275 us50=22531 us250=113147 diff=90616 cpu_MHz=3479.021
+count=1576275 us50=22567 us250=113138 diff=90571 cpu_MHz=3480.750
+count=1576275 us50=22583 us250=113086 diff=90503 cpu_MHz=3483.365
+count=1576275 us50=22564 us250=113158 diff=90594 cpu_MHz=3479.866
+count=1576275 us50=22624 us250=113070 diff=90446 cpu_MHz=3485.560
 ```
 
 Intel Xeon W-2155 @ 3.3GHz, amd64, g++-11.3.0
