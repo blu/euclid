@@ -15,7 +15,7 @@ $ g++ -std=c++17 -Ofast -fno-rtti -fno-exceptions -fstrict-aliasing -mcpu=<uarch
 $ g++ -std=c++17 -Ofast -fno-rtti -fno-exceptions -fstrict-aliasing -mcpu=<uarch> -mtune=<uarch> main_odd.cpp -o euclid_odd64 -DNUM_64BIT=1
 ```
 
-Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
+Note: at the absence of performance counters, cpu frequency verified via Willy Tarreau's [mhz utility](http://git.1wt.eu/web?p=mhz.git).
 
 | CPU                                             | time, s          | CPU cycles, 1e6  |
 | ----------------------------------------------- | ---------------- | ---------------- |
@@ -23,8 +23,8 @@ Note: at the absence of linux perf, cpu frequency verified via Willy Tarreau's [
 | BCM2712 Cortex-A76 2.4GHz (odd)                 | 12.615           | 30209            |
 | T234 Cortex-A78AE 2.2GHz (odd)                  | 13.755           | 30208            |
 | Snapdragon X1E-78-100 3.4GHz (odd)              | 1.289            | 4296             |
-| Apple M1 P-core 3.2GHz (odd)                    | 1.340            | 4288             |
-| Apple M2 P-core 3.49GHz (odd)                   | 1.230            | 4293             |
+| Apple M1 P-core 3.2GHz (odd)                    | 1.340            | 4308             |
+| Apple M2 P-core 3.49GHz (odd)                   | 1.220            | 4302             |
 
 
 There is a glaring difference in the results. What's going on here? To fully answer that question we need to start from afar.
@@ -83,11 +83,7 @@ The throughput is of particular importace to our test. Remember Oryon achieves o
 Rant on The Importance of Following Standards
 ---------------------------------------------
 
-Profiling on AS is not trivial. While Linux `perf` is the state-of-the-art in PMU-based profilers across all architectures, and AS has a viable PMU, there's no `perf` equivalent on macOS. There is `Instruments` there but it is far from `perf` feature-wise. Particularly `perf stat`-wise. So just run a guest Linux, no? Nope. Apple's Hypervisor Framework does not seem to expose any of the PMU machinery to guests. The only viable way to use `perf` on AS is in Asahi Linux, thanks to the enormous effort the Asahi team has invested in reverse engineering the plethora of undocumented bits and pieces of AS. Kudos to them. But that shouldn't have been needed PMU-wise, had Apple implemented one of the ARMv8 ISA standard PMU extensions, like e.g. PMUv3 which has been the baseline for more than a decade now. Instead Apple decided to stick to their in-house PMU and not share it with guests. Thanks Zeus Oryon was designed as a proper OEM, Linux-capable part, so even WSL2 guests get standard ARMv8 PMU features. In the meantime Apple can continue playing the Knights who say NIH. /rant over
-
-Anyhow, we can use the readings from `perf`-equipped platforms to draw some conclusions about M1 P-core IPC. As we use g++ to compile for M1, the codegen yields the same 7-op loop, save for trivialities like `cmp A, B; b.hi` <-> `cmp B, A; b.lo`.
-
-What we know is that the 7-op, strictly-compute loop universally takes 15,033 Mops to conclude, given this particular argument. We also know (indirectly, time * clock) that the duration of the loop is 4288 Mcycles on M1 P-core. That translates to an IPC of 3.50 -- the same as Oryon.
+Profiling on AS is not trivial. While Linux `perf` is the state-of-the-art in PMU-based profilers across all architectures, and AS has a viable PMU, there's no `perf` equivalent on macOS. There is `Instruments` there but it is far from `perf` feature-wise. Particularly `perf stat`-wise. So just run a guest Linux, no? Nope. Apple's Hypervisor Framework does not seem to expose any of the PMU machinery to guests. The only viable way to use `perf` on AS is in Asahi Linux, thanks to the enormous effort the Asahi team has put for reverse engineering the plethora of undocumented bits and pieces of AS. Kudos to them. But that shouldn't have been the case re the PMU, had Apple implemented one of the ARMv8 ISA standard PMU extensions. Like PMUv3, which has been the baseline for more than a decade now. Instead Apple decided to stick to their in-house PMU and not share it with guests. Still, there is a way to query macOS about a process's retired instruction and cycle counts: `/usr/bin/time -l` reports `proc_pid_rusage`, which since `rusage_info_v4` contains `ri_cycles` and `ri_instructions`. That suits us fine for our purposes. From there we can see that M1 P-core has an IPC of 3.50 -- same as Oryon.
 
 Final Words
 -----------
@@ -101,44 +97,6 @@ BCM2712 Cortex-A76 @ 2.4GHz, armv8-a64, g++-12.2.0
 -----------------------------------------------------------------------------------
 
 ```bash
-$ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_all64 12345678901234567
-prime: 7, power: 1 (7)
-prime: 1763668414462081, power: 1 (1763668414462081)
-
- Performance counter stats for './euclid_all64_gcc 12345678901234567':
-
-            214.93 msec task-clock:u                     #    0.998 CPUs utilized             
-       514,345,644      cycles:u                         #    2.393 GHz                       
-       295,317,919      instructions:u                   #    0.57  insn per cycle            
-       126,272,544      branches:u                       #  587.493 M/sec                     
-            10,143      branch-misses:u                  #    0.01% of all branches           
-
-       0.215285783 seconds time elapsed
-
-       0.215341000 seconds user
-       0.000000000 seconds sys
-```
-
-```bash
-$ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_odd64 12345678901234567
-prime: 7, power: 1 (7)
-prime: 1763668414462081, power: 1 (1763668414462081)
-
- Performance counter stats for './euclid_odd64_gcc 12345678901234567':
-
-            107.96 msec task-clock:u                     #    0.998 CPUs utilized             
-       257,855,069      cycles:u                         #    2.388 GHz                       
-       148,331,724      instructions:u                   #    0.58  insn per cycle            
-        63,278,464      branches:u                       #  586.111 M/sec                     
-             9,561      branch-misses:u                  #    0.02% of all branches           
-
-       0.108223428 seconds time elapsed
-
-       0.108320000 seconds user
-       0.000000000 seconds sys
-```
-
-```
 $ perf stat -e task-clock:u,cycles:u,instructions:u,branches:u,branch-misses:u ./euclid_odd64 18446744073709551557
 prime: 18446744073709551557, power: 1 (18446744073709551557)
 
@@ -158,44 +116,6 @@ prime: 18446744073709551557, power: 1 (18446744073709551557)
 
 Tegra T234 Cortex-A78 @ 2.2GHz, armv8-a64, g++-10.5.0
 -----------------------------------------------------------------------------------
-
-```bash
-$ perf stat -e task-clock:u,cycles:u,instructions:u,br_retired:u,br_mis_pred_retired:u ./euclid_all64 12345678901234567
-prime: 7, power: 1 (7)
-prime: 1763668414462081, power: 1 (1763668414462081)
-
- Performance counter stats for './euclid_all64 12345678901234567':
-
-            235.24 msec task-clock:u              #    0.996 CPUs utilized          
-       514,341,917      cycles:u                  #    2.186 GHz                    
-       295,564,406      instructions:u            #    0.57  insn per cycle         
-       126,320,176      br_retired:u              #  536.981 M/sec                  
-            11,679      br_mis_pred_retired:u     #    0.050 M/sec                  
-
-       0.236098786 seconds time elapsed
-
-       0.235930000 seconds user
-       0.000000000 seconds sys
-```
-
-```bash
-$ perf stat -e task-clock:u,cycles:u,instructions:u,br_retired:u,br_mis_pred_retired:u ./euclid_odd64 12345678901234567
-prime: 7, power: 1 (7)
-prime: 1763668414462081, power: 1 (1763668414462081)
-
- Performance counter stats for './euclid_odd64 12345678901234567':
-
-            118.99 msec task-clock:u              #    0.994 CPUs utilized          
-       258,165,755      cycles:u                  #    2.170 GHz                    
-       148,578,230      instructions:u            #    0.58  insn per cycle         
-        63,326,100      br_retired:u              #  532.206 M/sec                  
-            11,599      br_mis_pred_retired:u     #    0.097 M/sec                  
-
-       0.119667683 seconds time elapsed
-
-       0.119447000 seconds user
-       0.000000000 seconds sys
-```
 
 ```bash
 $ perf stat -e task-clock:u,cycles:u,instructions:u,br_retired:u,br_mis_pred_retired:u ./euclid_odd64 18446744073709551557
@@ -240,144 +160,52 @@ Apple M1 @ 3.2GHz, armv8-a64, g++-13.0.0
 -----------------------------------------------------------------------------------
 
 ```bash
-% for i in {0..15} ; do /usr/bin/time -p ./euclid_odd64 18446744073709551557 ; done
+% /usr/bin/time -l ./euclid_odd64 18446744073709551557
 prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.40
-user         1.37
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real         1.34
-user         1.34
-sys          0.00
-% ./mhz 16
-count=1576275 us50=24615 us250=123206 diff=98591 cpu_MHz=3197.604
-count=1576275 us50=24936 us250=123316 diff=98380 cpu_MHz=3204.462
-count=1576275 us50=24750 us250=123482 diff=98732 cpu_MHz=3193.038
-count=1576275 us50=24817 us250=123232 diff=98415 cpu_MHz=3203.323
-count=1576275 us50=24759 us250=123326 diff=98567 cpu_MHz=3198.383
-count=1576275 us50=24752 us250=123426 diff=98674 cpu_MHz=3194.915
-count=1576275 us50=24796 us250=123273 diff=98477 cpu_MHz=3201.306
-count=1576275 us50=24794 us250=123593 diff=98799 cpu_MHz=3190.872
-count=1576275 us50=24830 us250=123236 diff=98406 cpu_MHz=3203.616
-count=1576275 us50=24775 us250=123402 diff=98627 cpu_MHz=3196.437
-count=1576275 us50=24719 us250=123238 diff=98519 cpu_MHz=3199.941
-count=1576275 us50=24757 us250=123256 diff=98499 cpu_MHz=3200.591
-count=1576275 us50=24734 us250=123458 diff=98724 cpu_MHz=3193.296
-count=1576275 us50=24793 us250=123322 diff=98529 cpu_MHz=3199.616
-count=1576275 us50=24755 us250=123651 diff=98896 cpu_MHz=3187.743
-count=1576275 us50=24802 us250=123244 diff=98442 cpu_MHz=3202.444
+        1.34 real         1.34 user         0.00 sys
+             2260992  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 162  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   1  involuntary context switches
+         15059117725  instructions retired
+          4308875664  cycles elapsed
+             1098696  peak memory footprint
 ```
 
 Apple M2 @ 3.49GHz, armv8-a64, g++-13.0.0
 -----------------------------------------------------------------------------------
 
 ```bash
-% for i in {0..7} ; do /usr/bin/time -p ./euclid_odd64 18446744073709551557 ; done
+% /usr/bin/time -l ./euclid_odd64 18446744073709551557
 prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.26
-user 1.25
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-prime: 18446744073709551557, power: 1 (18446744073709551557)
-real 1.23
-user 1.22
-sys 0.00
-% ./mhz 16
-count=1576275 us50=22521 us250=112610 diff=90089 cpu_MHz=3499.373
-count=1576275 us50=22554 us250=113019 diff=90465 cpu_MHz=3484.828
-count=1576275 us50=22546 us250=113687 diff=91141 cpu_MHz=3458.981
-count=1576275 us50=22642 us250=113530 diff=90888 cpu_MHz=3468.610
-count=1576275 us50=22686 us250=113255 diff=90569 cpu_MHz=3480.827
-count=1576275 us50=22638 us250=113184 diff=90546 cpu_MHz=3481.711
-count=1576275 us50=22712 us250=113216 diff=90504 cpu_MHz=3483.327
-count=1576275 us50=22678 us250=113022 diff=90344 cpu_MHz=3489.496
-count=1576275 us50=22613 us250=113209 diff=90596 cpu_MHz=3479.789
-count=1576275 us50=22629 us250=113117 diff=90488 cpu_MHz=3483.943
-count=1576275 us50=22555 us250=113243 diff=90688 cpu_MHz=3476.259
-count=1576275 us50=22531 us250=113147 diff=90616 cpu_MHz=3479.021
-count=1576275 us50=22567 us250=113138 diff=90571 cpu_MHz=3480.750
-count=1576275 us50=22583 us250=113086 diff=90503 cpu_MHz=3483.365
-count=1576275 us50=22564 us250=113158 diff=90594 cpu_MHz=3479.866
-count=1576275 us50=22624 us250=113070 diff=90446 cpu_MHz=3485.560
+        1.22 real         1.22 user         0.00 sys
+             1310720  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 210  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   2  involuntary context switches
+         15041452422  instructions retired
+          4302731545  cycles elapsed
+             1098496  peak memory footprint
 ```
 
 Intel Xeon W-2155 @ 3.3GHz, amd64, g++-11.3.0
