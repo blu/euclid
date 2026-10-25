@@ -76,19 +76,19 @@ Oryon is not just a state-of-the-art IPC OoO design. It also has "special powers
 SDIV, UDIV: 64b latency of 7-9 cycles. A new divide can be issued every other cycle.
 ```
 
-Not only is the latency unprecedentedly low, but the throughput is also high as the unit is fully pipelined -- one division issued every 2 cycles! Unreal.
+Not only is the latency unprecedentedly low, but the throughput is also high as the unit is fully pipelined -- one division issued every 2 cycles!
 
-The throughput is of particular importace to our test. Remember Oryon achieves one iteration every 2 cycles? Well, this is a major why.
+The throughput is of particular importace to our test. Remember Oryon achieves one iteration every 2 cycles? Well, this is a major why. Basically, Oryon takes 2 cycles per loop iteration and this is limited by the divison throughput.
 
 Rant on The Importance of Following Standards
 ---------------------------------------------
 
-Profiling on AS is not trivial. While Linux `perf` is the state-of-the-art in PMU-based profilers across all architectures, and AS has a viable PMU, there's no `perf` equivalent on macOS. There is `Instruments` there but it is far from `perf` feature-wise. Particularly `perf stat`-wise. So just run a guest Linux, no? Nope. Apple's Hypervisor Framework does not seem to expose any of the PMU machinery to guests. The only viable way to use `perf` on AS is in Asahi Linux, thanks to the enormous effort the Asahi team has put for reverse engineering the plethora of undocumented bits and pieces of AS. Kudos to them. But that shouldn't have been the case re the PMU, had Apple implemented one of the ARMv8 ISA standard PMU extensions. Like PMUv3, which has been the baseline for more than a decade now. Instead Apple decided to stick to their in-house PMU and not share it with guests. Still, there is a way to query macOS about a process's retired instruction and cycle counts: `/usr/bin/time -l` reports `proc_pid_rusage`, which since `rusage_info_v4` contains `ri_cycles` and `ri_instructions`. That suits us fine for our purposes. From there we can see that M1 P-core has an IPC of 3.50 -- same as Oryon.
+Profiling on AS is not trivial. While Linux `perf` is the state-of-the-art in PMU-based profilers across all architectures, and AS has a capable PMU, there's no `perf` equivalent on macOS. There is `Instruments` there but it is far from `perf` feature-wise. Particularly `perf stat`-wise. So just run a guest Linux, no? Nope. Apple's Hypervisor Framework does not seem to expose any of the PMU machinery to guests. The only viable way to use `perf` on AS is in Asahi Linux, thanks to the enormous effort of the Asahi team for reverse engineering the plethora of undocumented bits and pieces of AS. Kudos to them! But that shouldn't have been the case re the PMU, had Apple implemented one of the ARMv8 ISA standard PMU extensions. Like PMUv3, which has been the baseline for more than a decade now. Instead Apple decided to stick to their in-house PMU and not share it with guests. Still, there is a way to query macOS about a process's retired instruction and cycle counts: `/usr/bin/time -l` reports `proc_pid_rusage`, which since `rusage_info_v4` contains `ri_cycles` and `ri_instructions`. That suits us fine for our purposes. From there we can see that M1 P-core has an IPC of 3.50 -- same as Oryon.
 
 Final Words
 -----------
 
-How uarch architects spend their transistor budgets is perhaps the raison d'etre of that profession. But we can all agree that we have a solid proof that state-of-the-art general-purpose processors can afford *not* to botch their integer-division implementions, and give that op a first-class citizenship instead. As somebody who remembers the times when division and multiplication were entirely sw devs' problems, I am happy that somebody has finally taken the initiative to solve that basic problem at a much more fundamental level. Thank you, Oryon and AS P-core architects!
+How uarch architects spend their transistor budgets is perhaps the raison d'etre of that profession. But we have a solid proof now that state-of-the-art general-purpose processors can afford *not* to botch their integer-division implementions, and instead give that op a first-class citizenship. I remember the time when division and multiplication were entirely sw devs' problems and I am happy that somebody at the hw side has finally owned up to the problem of performant integer division. Thank you, Oryon and AS architects!
 
 Benchmark Logs (best results from a possible multi-run)
 =======================================================
