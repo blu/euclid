@@ -70,7 +70,7 @@ A fairly tight loop. Tight loops featuring division, especially 64-bit one, are 
 A Division Unit Like No Other
 -----------------------------
 
-Oryon is not just a state-of-the-art IPC OoO design. It also has "special powers" on this test -- an integer DIV unit unlike any other. Well, any other but Apple Silicon. So here we will "quote the brochure" on Apple Silicon P-cores, as of the time of this writing Oryon does not have its instruction timings published yet, and Oryon and AS P-cores results on this test are as close as they come.
+Oryon is not just a state-of-the-art IPC OoO design. It also has "special powers" on this test -- an integer DIV unit unlike any other. Well, any other but Apple Silicon. So here we will "quote the brochure" on Apple Silicon P-cores, as at the time of writing Oryon instruction timings have not been published, and Oryon and AS P-cores results on this test are as close as they come.
 
 ```
 SDIV, UDIV: 64b latency of 7-9 cycles. A new divide can be issued every other cycle.
@@ -78,7 +78,7 @@ SDIV, UDIV: 64b latency of 7-9 cycles. A new divide can be issued every other cy
 
 Not only is the latency unprecedentedly low, but the throughput is also high as the unit is fully pipelined -- one division issued every 2 cycles!
 
-The throughput is of particular importace to our test. Remember Oryon achieves one iteration every 2 cycles? Well, this is a major why. Basically, Oryon takes 2 cycles per loop iteration and this is limited by the divison throughput.
+The throughput is of particular importace to our test. Remember Oryon achieves one iteration every 2 cycles? Well, this is a major why. Basically, Oryon taking 2 cycles per loop iteration is limited by the divison throughput.
 
 Rant on The Importance of Following Standards
 ---------------------------------------------
